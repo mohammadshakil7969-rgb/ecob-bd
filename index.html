@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DDEFC Player Stats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #0077cc;
+            margin-bottom: 20px;
+        }
+        select, input[type="number"], button {
+            padding: 8px;
+            margin: 5px;
+            font-size: 16px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            font-size: 14px;
+        }
+        th {
+            background: #0077cc;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        td button {
+            background: red;
+            color: white;
+            border: none;
+            padding: 5px 8px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>DDEFC Player Stats</h1>
+
+    <select id="player">
+        <option value="">Select Player</option>
+        <option>Masum Billah</option>
+        <option>Easin Ali Khan</option>
+        <option>মোহাম্মদ ইমরান</option>
+        <option>Nur Nabi Redoan</option>
+        <option>Yasin Islam</option>
+        <option>Md Safat Bin Safi</option>
+        <option>Sayeed bin karim mahim</option>
+        <option>Haider Hossain Sirat</option>
+        <option>Mohammad Shakil</option>
+        <option>Manzurul Mamun</option>
+        <option>Md Sayed</option>
+        <option>Yeasin Arafat</option>
+        <option>A R Prince</option>
+        <option>Mohammad Arafat</option>
+        <option>Abu rayhan</option>
+        <option>Tanvir Akon</option>
+        <option>Shimul Datta</option>
+        <option>Arfan Islam Saiful</option>
+        <option>As A Miraz Hossain</option>
+        <option>MD.Yeasin</option>
+    </select>
+
+    <input type="number" id="goals" placeholder="Enter Goals">
+    <button onclick="addPlayer()">Submit</button>
+
+    <table id="table">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Goals</th>
+                <th>Hat-trick</th>
+                <th>Double Hat-trick</th>
+                <th>Rating Points</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        let players = JSON.parse(localStorage.getItem('players')) || [];
+
+        function saveAndRender() {
+            localStorage.setItem('players', JSON.stringify(players));
+            renderTable();
+        }
+
+        function addPlayer() {
+            let name = document.getElementById('player').value;
+            let goals = parseInt(document.getElementById('goals').value);
+
+            if (!name || isNaN(goals)) {
+                alert('Select a player and enter goals');
+                return;
+            }
+
+            let player = players.find(p => p.name === name);
+            if (player) {
+                player.goals += goals;
+            } else {
+                players.push({ name: name, goals: goals });
+            }
+
+            players.forEach(p => {
+                p.hatTricks = Math.floor(p.goals / 3);
+                p.doubleHatTricks = Math.floor(p.goals / 6);
+                p.rating = p.goals * 15;
+            });
+
+            players.sort((a, b) => b.goals - a.goals);
+
+            saveAndRender();
+
+            document.getElementById('goals').value = '';
+        }
+
+        function deletePlayer(index) {
+            if (confirm('Are you sure to delete this player?')) {
+                players.splice(index, 1);
+                saveAndRender();
+            }
+        }
+
+        function renderTable() {
+            let tbody = document.querySelector('#table tbody');
+            tbody.innerHTML = '';
+
+            players.forEach((p, index) => {
+                let row = `<tr>
+                    <td>${p.name}</td>
+                    <td>${p.goals}</td>
+                    <td>${p.hatTricks}</td>
+                    <td>${p.doubleHatTricks}</td>
+                    <td>${p.rating}</td>
+                    <td><button onclick="deletePlayer(${index})">❌</button></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        renderTable();
+    </script>
+
+</body>
+</html>
